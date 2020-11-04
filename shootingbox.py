@@ -13,6 +13,8 @@ win = pygame.display.set_mode((screenWidth,screenHeight))
 pygame.display.set_caption("Game window BNG")
 att=2
 #shoot = False
+
+
 class player (object):
     def __init__(self,x,y,width,height):
         self.x= x 
@@ -46,11 +48,8 @@ class shoot (object):
         
     
     def shootIT(self):
-        
         self.gun = (self.x  ,self.y  )
-        
         pygame.draw.circle(win,(255,255,255),self.gun,6)
-        
         pygame.display.update()
     
 
@@ -94,7 +93,6 @@ class asteroid(player):
 
 
 def reDrawGameWindow ():
-    global walkCount
     win.blit(backGround,(0,0))
     ship1.draw(win)
     for planet in planets :
@@ -113,16 +111,20 @@ pygame.image.load('img/planet10.png'),pygame.image.load('img/planet11.png'),pyga
 pygame.image.load('img/planet13.png'),pygame.image.load('img/planet14.png'),pygame.image.load('img/planet15.png'),
 pygame.image.load('img/planet16.png'),pygame.image.load('img/planet17.png'),pygame.image.load('img/planet18.png'),
 pygame.image.load('img/planet19.png'),pygame.image.load('img/planet20.png'),]
+
 spaceShip = [pygame.image.load('img/ship1.png'),pygame.image.load('ship_F5.png'),]
 backGround = pygame.image.load('img/spacebackground.png')
 ship1 = player(225,500,71,80)
 fire = []
+
 planets = []
 for i in astreoidPic  :
     planets.append(asteroid(astreoidPic[random.randrange(1,20)],random.randrange(64,screenWidth-64),random.randrange(-700,2),64,64))
 
 rowas = []
 loopsht = 0
+
+
 run = True 
 while run:
     clock.tick(50)
@@ -155,10 +157,6 @@ while run:
 
    
     keys = pygame.key.get_pressed()
-    
-    
-
-
     if keys[pygame.K_LEFT] and  ship1.x > ship1.ve :
         ship1.x -= ship1.ve * 3
         ship1.left = True
@@ -173,11 +171,7 @@ while run:
         ship1.left = False
         ship1.walkCount = 0
         
-    if not (ship1.isJump):
-       # if keys[pygame.K_UP] and y > ve  :
-       #     y -= ve
-       # if keys[pygame.K_DOWN] and y < screenHeight - height:
-        #    y += ve
+    
         if keys[pygame.K_SPACE] :
             ship1.yesshoot = True
             fire.append(shoot(ship1.x+30,ship1.y))
@@ -197,30 +191,17 @@ while run:
             else :
                 fire.pop(fire.index(i))
 
-    
-
             if not planets:
                 for i in astreoidPic  :
-                    planets.append(asteroid(astreoidPic[random.randrange(1,20)],random.randrange(64,screenWidth-64),random.randrange(-700,2),64,64))
+                    planets.append(asteroid(astreoidPic[random.randrange(1,20)],
+                    random.randrange(64,screenWidth-64),random.randrange(-700,2),64,64))
 
                     
             #fire = []
         else :
             ship1.yesshoot = False     
 
-    else:
-        if ship1.jumpCount >= -10 :
-            neg = 1 
-            if ship1.jumpCount < 0 :
-                neg = -1
-           # ship1.y -= ( ship1.jumpCount ** 2) * 0.5 * neg 
-            ship1.jumpCount-=1
-        else : 
-            ship1.isJump = False
-            ship1.jumpCount = 10
+    
     reDrawGameWindow()
- #   win.fill((0,0,0))
- #   pygame.draw.rect(win,(255,0,0),(x,y,width ,height))
- #   pygame.display.update()
 
 pygame.quit()
