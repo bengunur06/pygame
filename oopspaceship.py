@@ -11,7 +11,7 @@ screenWidth = 800
 screenHeight = 600
 pygame.display.set_caption("Game window BNG")
 att=2
-
+#shoot = False
 class player (object):
     def __init__(self,x,y,width,height):
         self.x= x 
@@ -24,16 +24,43 @@ class player (object):
         self.right = False 
         self.left = False 
         self.walkCount = 0 
-        self.hitbox = (self.x+ 20 , self.y +5 ,65,65 )
+        self.hitbox = (self.x , self.y +5 ,65,65 )
+        self.gun = (self.x , self.y- 10  )
+        self.yesshoot = False 
 
     def draw(self,win):
         win.blit(spaceShip[0],(self.x,self.y))
+        self.hitbox = (self.x , self.y +5 ,65,65 )
+        pygame.draw.rect(win,(255,0,0),self.hitbox,2)
+        
+
+
+        
+class shoot (object):
+    def __init__(self,x,y):
+        self.x = x
+        self.y= y 
+        self.vel = 10
+        self.gun = (self.x  , self.y -self.vel )
+        
+    
+    def shootIT(self):
+        self.gun = (self.x  ,self.y -self.vel )
+        pygame.draw.circle(win,(0,0,0),self.gun,3)
+        pygame.draw.circle(win,(0,0,0),self.gun,4)
+        pygame.draw.circle(win,(0,0,0),self.gun,5)
+        pygame.draw.circle(win,(0,0,0),self.gun,6)
+        pygame.display.update()
+    
+
 
 
 class asteroid(player):
     def draw(self,win):
         self.y+=2
         win.blit(astreoidPic[random.randrange(1,20)],(self.x ,self.y))
+        self.hitbox = (self.x , self.y +5 ,65,65 )
+        pygame.draw.rect(win,(255,0,0),self.hitbox,2)
 
     def hit (self):
         self
@@ -76,7 +103,7 @@ pygame.image.load('img/planet19.png'),pygame.image.load('img/planet20.png'),]
 spaceShip = [pygame.image.load('ship_F.png'),pygame.image.load('ship_F5.png'),]
 backGround = pygame.image.load('bg_1.png')
 ship1 = player(225,500,64,64)
-
+fire = []
 planets = []
 for i in astreoidPic  :
     planets.append(asteroid(random.randrange(0,screenWidth),random.randrange(-700,2),64,64))
@@ -116,10 +143,18 @@ while run:
        # if keys[pygame.K_DOWN] and y < screenHeight - height:
         #    y += ve
         if keys[pygame.K_SPACE] :
-            ship1.isJump = True
-            right=False
-            left = False
-            walkCount = 0 
+            ship1.yesshoot = True
+            fire.append(shoot(ship1.x+30,ship1.y))
+
+        for i in fire :
+            i.vel+=30
+            i.shootIT()
+
+    
+            
+            #fire = []
+        else :
+            ship1.yesshoot = False     
 
     else:
         if ship1.jumpCount >= -10 :
