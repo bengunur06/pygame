@@ -6,9 +6,10 @@ pygame.mixer.init()
 pygame.mixer.music.load('img/through_space.ogg')
 pygame.mixer.music.play(-1)
 clock = pygame.time.Clock()
-win = pygame.display.set_mode((800,600))
-screenWidth = 800
-screenHeight = 600
+screenWidth = 700
+screenHeight = 900
+win = pygame.display.set_mode((screenWidth,screenHeight))
+
 pygame.display.set_caption("Game window BNG")
 att=2
 #shoot = False
@@ -45,23 +46,44 @@ class shoot (object):
         
     
     def shootIT(self):
-        self.y -=self.vel
+        
         self.gun = (self.x  ,self.y  )
         
-        pygame.draw.circle(win,(0,0,0),self.gun,3)
-        pygame.draw.circle(win,(0,0,0),self.gun,4)
-        pygame.draw.circle(win,(0,0,0),self.gun,5)
-        pygame.draw.circle(win,(0,0,0),self.gun,6)
+        pygame.draw.circle(win,(255,255,255),self.gun,6)
+        
         pygame.display.update()
     
 
 
+class moveSpace(object):
+    def __init__(self):
+        self.x = 0
+        self.y = 0 
+        self.ox =screenWidth - 15
+        self.oy = screenHeight - 5
+        self.vel = 15
+
+    def draw (self):
+        self.x += self.vel * 2
+        pygame.draw.rect(win,(255,0,0),(self.x,self.y,25,10),2)
+        pygame.draw.rect(win,(255,0,0),(self.ox,self.oy,20,10),2)
+        pygame.display.update()
+    
+
 
 class asteroid(player):
+    def __init__(self,pic ,x,y,w,h):
+        self.x= x 
+        self.y = y 
+        self.width = w 
+        self.height = h
+        self.pic = pic 
+        self.hitbox = (self.x , self.y ,64,64 )
+
     def draw(self,win):
-        self.y+=2
-        win.blit(astreoidPic[random.randrange(1,20)],(self.x ,self.y))
-        self.hitbox = (self.x , self.y +5 ,65,65 )
+        self.y+=1
+        win.blit(self.pic,(self.x ,self.y))
+        self.hitbox = (self.x , self.y ,65,65 )
         pygame.draw.rect(win,(255,0,0),self.hitbox,2)
 
     def hit(self):
@@ -91,24 +113,41 @@ pygame.image.load('img/planet10.png'),pygame.image.load('img/planet11.png'),pyga
 pygame.image.load('img/planet13.png'),pygame.image.load('img/planet14.png'),pygame.image.load('img/planet15.png'),
 pygame.image.load('img/planet16.png'),pygame.image.load('img/planet17.png'),pygame.image.load('img/planet18.png'),
 pygame.image.load('img/planet19.png'),pygame.image.load('img/planet20.png'),]
-spaceShip = [pygame.image.load('ship_F.png'),pygame.image.load('ship_F5.png'),]
-backGround = pygame.image.load('bg_1.png')
-ship1 = player(225,500,64,64)
+spaceShip = [pygame.image.load('img/ship1.png'),pygame.image.load('ship_F5.png'),]
+backGround = pygame.image.load('img/spacebackground.png')
+ship1 = player(225,500,71,80)
 fire = []
 planets = []
 for i in astreoidPic  :
-    planets.append(asteroid(random.randrange(0,screenWidth),random.randrange(-700,2),64,64))
+    planets.append(asteroid(astreoidPic[random.randrange(1,20)],random.randrange(64,screenWidth-64),random.randrange(-700,2),64,64))
 
+rowas = []
 loopsht = 0
 run = True 
 while run:
-    clock.tick(27)
+    clock.tick(50)
     
-    pygame.time.delay(100)
+    for a in planets:
+        if a.hitbox[1]+a.hitbox[3] > ship1.y :
+            print ("you lost ")
+            pygame.quit() 
+    
+    '''
+    for i in range(50):
+        rowas.append(moveSpace())
+
+    for i in rowas : 
+       i.draw()
+        if (rowas.index(i) %2 ==1):
+            i.x +=10
+        else:
+            i.x -=10 
+        rowas.pop(rowas.index(i))   
+    '''
 
     if loopsht > 0: 
         loopsht +=1
-    if loopsht >3: 
+    if loopsht >6: 
         loopsht = 0
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -121,11 +160,11 @@ while run:
 
 
     if keys[pygame.K_LEFT] and  ship1.x > ship1.ve :
-        ship1.x -= ship1.ve * 2
+        ship1.x -= ship1.ve * 3
         ship1.left = True
         ship1.right = False 
     elif keys[pygame.K_RIGHT] and  ship1.x < screenWidth - ship1.width  :
-        ship1.x += ship1.ve * 2 
+        ship1.x += ship1.ve * 3 
         ship1.right = True
         ship1.left = False 
     
@@ -153,16 +192,18 @@ while run:
                         a.hit()
                         planets.pop(planets.index(a))
 
-                if i.y < screenHeight and i.y > 0:
-                    i.y -= i.vel
-               # else :
-                    #fire.pop(fire.index(i))
-            
-        if not planets:
-            for i in astreoidPic  :
-                planets.append(asteroid(random.randrange(0,screenWidth),random.randrange(-900,1),64,64))
+            if i.y < screenHeight and i.y > 0:
+                i.y -= i.vel * 5
+            else :
+                fire.pop(fire.index(i))
 
-            
+    
+
+            if not planets:
+                for i in astreoidPic  :
+                    planets.append(asteroid(astreoidPic[random.randrange(1,20)],random.randrange(64,screenWidth-64),random.randrange(-700,2),64,64))
+
+                    
             #fire = []
         else :
             ship1.yesshoot = False     
@@ -172,7 +213,7 @@ while run:
             neg = 1 
             if ship1.jumpCount < 0 :
                 neg = -1
-            ship1.y -= ( ship1.jumpCount ** 2) * 0.5 * neg 
+           # ship1.y -= ( ship1.jumpCount ** 2) * 0.5 * neg 
             ship1.jumpCount-=1
         else : 
             ship1.isJump = False
