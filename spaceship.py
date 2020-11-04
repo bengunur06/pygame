@@ -7,6 +7,8 @@ screenWidth = 500
 screenHeight = 500
 pygame.display.set_caption("Game window BNG")
 
+
+
 x = 50 
 y = 400
 width = 64
