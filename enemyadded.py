@@ -2,9 +2,9 @@ import pygame
 import random
 
 pygame.init()
-#pygame.mixer.init()
+pygame.mixer.init()
 #pygame.mixer.music.load('img/through_space.ogg')
-pygame.mixer.music.play(-1)
+#pygame.mixer.music.play(-1)
 clock = pygame.time.Clock()
 screenWidth = 700
 screenHeight = 900
