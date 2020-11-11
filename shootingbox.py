@@ -35,7 +35,9 @@ class player (object):
         win.blit(spaceShip[0],(self.x,self.y))
         self.hitbox = (self.x , self.y +5 ,65,65 )
         pygame.draw.rect(win,(255,0,0),self.hitbox,2)
-        
+
+    def hit(self):
+        print("ship was shoot")
 
 
         
@@ -89,15 +91,58 @@ class asteroid(player):
         print("hit")
     
 
+class enemyy():
+    def __init__(self,x,y,w,h):
+        self.x = x 
+        self.y = y 
+        self.width = w 
+        self.height = h
+        self.pic = pygame.image.load('img/5.png') 
+        self.vel=3
+        self.neg= 1
+        self.hitbox = (self.x , self.y ,w,h )
+        self.jumpCount = 10
+        self.ay = y
+        self.ax = x
+        self.gun = (self.ax  ,self.ay)
+
+    def draw(self,win):
+        self.y+=1
+        
+        self.gun = (self.ax  ,self.ay)
+        self.ay +=4
+        if(self.jumpCount >= -20):
+            self.neg= 1
+            if(self.jumpCount < 0):
+                self.neg = -1
+        else : 
+            self.jumpCount = 20
+
+        self.x += (self.vel ** 2) * 0.5 * self.neg
+        self.jumpCount-=0.5
+        win.blit(self.pic,(self.x ,self.y))
+        self.hitbox = (self.x , self.y ,36,36 )
+        pygame.draw.rect(win,(255,0,0),self.hitbox,2)
+        #pygame.draw.circle(win,(255,255,255),self.gun,5)
+         
+        pygame.display.update()
+
+    def hit(self):
+        print("alien hit")        
 
 
 
-def reDrawGameWindow ():
+def reDrawGameWindow (score):
+    largeFont = pygame.font.SysFont('comicsans', 30) # Font object
+    text = largeFont.render('Score: ' + str(score), 1, (255,255,255)) # create o
     win.blit(backGround,(0,0))
     ship1.draw(win)
     for planet in planets :
         planet.draw(win)
-        
+    for al in alien :   
+        al.draw(win)
+
+    win.blit(text, (600, 10))
     pygame.display.update()
     
     
@@ -116,7 +161,10 @@ spaceShip = [pygame.image.load('img/ship1.png'),pygame.image.load('ship_F5.png')
 backGround = pygame.image.load('img/spacebackground.png')
 ship1 = player(225,500,71,80)
 fire = []
-
+alien = []
+score = 0 
+alncnt = 4
+alienfire = []
 planets = []
 for i in astreoidPic  :
     planets.append(asteroid(astreoidPic[random.randrange(1,20)],random.randrange(64,screenWidth-64),random.randrange(-700,2),64,64))
@@ -127,33 +175,54 @@ loopsht = 0
 
 run = True 
 while run:
-    clock.tick(50)
+    clock.tick(500)
     
     for a in planets:
         if a.hitbox[1]+a.hitbox[3] > ship1.y :
             print ("you lost ")
             pygame.quit() 
     
-    '''
-    for i in range(50):
-        rowas.append(moveSpace())
 
-    for i in rowas : 
-       i.draw()
-        if (rowas.index(i) %2 ==1):
-            i.x +=10
-        else:
-            i.x -=10 
-        rowas.pop(rowas.index(i))   
-    '''
+    if not alien : 
+        for i in range(0,4):
+            alien.append(enemyy(random.randrange(64,screenWidth-64),random.randrange(-200,1),32,32))
+            alienfire.append(shoot(alien[i].x+15,alien[i].y))
+            alienfire.append(shoot(alien[i].x+15,alien[i].y+10))
+            print("here making alien")
+            
+            #alienfire[i].shootIT()  
+    
+ #   for af in alienfire:
+  #      for al in alien:
+   #         alienfire.append(shoot(alien[al].x+15,alien[al].y))
+    #        alienfire.append(shoot(alien[al].x+15,alien[al].y+10))
+
+    for i in alienfire:
+        i.shootIT()
+        i.y += i.vel 
+
+        
+        if i.y - 5 < ship1.hitbox[1]+ ship1.hitbox[3] and i.y + 5 > ship1.hitbox[1]:
+            if i.x + 5 > ship1.hitbox[0] and i.x - 5 < ship1.hitbox[0] + ship1.hitbox[2]:
+                ship1.hit()
+                pygame.quit()
+        
+        for a in alien : 
+            if   a.hitbox[1] > ship1.hitbox[1]:
+                ship1.hit()
+                pygame.quit()
+        
+        if i.y > screenHeight :
+            alienfire.pop(alienfire.index(i))
+    
+   
+            
 
     if loopsht > 0: 
         loopsht +=1
     if loopsht >6: 
         loopsht = 0
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            run = False
+    
 
    
     keys = pygame.key.get_pressed()
@@ -185,6 +254,14 @@ while run:
                     if i.x + 5 > a.hitbox[0] and i.x - 5 < a.hitbox[0] + a.hitbox[2]:
                         a.hit()
                         planets.pop(planets.index(a))
+                        score+=1
+
+            for al in alien:
+                if i.y  < al.hitbox[1]+ al.hitbox[3] and i.y +2 > al.hitbox[1]:
+                    if i.x > al.hitbox[0] and i.x  < a.hitbox[0] + a.hitbox[2]:
+                        al.hit()
+                        alien.pop(alien.index(al))
+                        score+=5
 
             if i.y < screenHeight and i.y > 0:
                 i.y -= i.vel * 5
@@ -201,7 +278,10 @@ while run:
         else :
             ship1.yesshoot = False     
 
-    
-    reDrawGameWindow()
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
+
+    reDrawGameWindow(score)
 
 pygame.quit()

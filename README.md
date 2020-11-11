@@ -3,10 +3,10 @@ Planet Shooter is a game created with pygame module.Check out the [pygame](https
 # How-to run the code 
 
 > ### Prerequisites
-    1. Python3 must be installed for your system check on how to install for linux you can follow up this tutorial [tutorial](https://phoenixnap.com/kb/how-to-install-python-3-ubuntu)
+1. Python3 must be installed for your system check on how to install for linux you can follow up this tutorial [tutorial](https://phoenixnap.com/kb/how-to-install-python-3-ubuntu)
 
-    2. Pygame module installation. 
-        `pip install pygame `
+2. Pygame module installation. 
+    `pip install pygame `
 
 
 - ## Run 
