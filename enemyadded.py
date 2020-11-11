@@ -2,8 +2,8 @@ import pygame
 import random
 
 pygame.init()
-pygame.mixer.init()
-pygame.mixer.music.load('img/through_space.ogg')
+#pygame.mixer.init()
+#pygame.mixer.music.load('img/through_space.ogg')
 pygame.mixer.music.play(-1)
 clock = pygame.time.Clock()
 screenWidth = 700
@@ -132,7 +132,7 @@ class enemyy():
 
 
 
-def reDrawGameWindow (score):
+def reDrawGameWindow ():
     largeFont = pygame.font.SysFont('comicsans', 30) # Font object
     text = largeFont.render('Score: ' + str(score), 1, (255,255,255)) # create o
     win.blit(backGround,(0,0))
@@ -175,7 +175,7 @@ loopsht = 0
 
 run = True 
 while run:
-    clock.tick(500)
+    clock.tick(100)
     
     for a in planets:
         if a.hitbox[1]+a.hitbox[3] > ship1.y :
@@ -249,33 +249,28 @@ while run:
         for i in fire :
             
             i.shootIT()
-            if i in fire and not 0:
-                for a in planets:
-                    if i.y - 5 < a.hitbox[1]+ a.hitbox[3] and i.y + 5 > a.hitbox[1]:
-                        if i.x + 5 > a.hitbox[0] and i.x - 5 < a.hitbox[0] + a.hitbox[2]:
-                            a.hit()
-                            planets.pop(planets.index(a))
-                            score+=1
-                            fire.remove(fire.index(i))
-                            fire=[x for x in  fire if x != 0]
-                         
-            for al in alien:
-                if i in fire and not 0:
-                    if i.y  < al.hitbox[1]+ al.hitbox[3] and i.y +2 > al.hitbox[1]:
-                        if i.x > al.hitbox[0] and i.x  < a.hitbox[0] + a.hitbox[2]:
-                            al.hit()
-                            alien.remove(alien.index(al))
-                            score+=5
-                            fire=[x for x in  fire if x != 0]
-            
-            if i in fire and not 0:
-                if i.y < screenHeight and i.y > 0:
-                    i.y -= i.vel * 5
-                else :
-                    fire.remove(fire.index(i))
-                    fire=[x for x in  fire if x != 0] 
+            for a in planets:
+                if i.y - 5 < a.hitbox[1]+ a.hitbox[3] and i.y + 5 > a.hitbox[1]:
+                    if i.x + 5 > a.hitbox[0] and i.x - 5 < a.hitbox[0] + a.hitbox[2]:
+                        a.hit()
+                        planets.pop(planets.index(a))
+                        score+=1
+                        reDrawGameWindow()
 
-            if not planets and i in fire :
+            for al in alien:
+                if i.y  < al.hitbox[1]+ al.hitbox[3] and i.y +2 > al.hitbox[1]:
+                    if i.x > al.hitbox[0] and i.x  < a.hitbox[0] + a.hitbox[2]:
+                        al.hit()
+                        alien.pop(alien.index(al))
+                        score+=5
+                        reDrawGameWindow()
+
+            if i.y < screenHeight and i.y > 0:
+                i.y -= i.vel * 5
+            else :
+                fire.pop(fire.index(i))
+
+            if not planets:
                 for i in astreoidPic  :
                     planets.append(asteroid(astreoidPic[random.randrange(1,20)],
                     random.randrange(64,screenWidth-64),random.randrange(-700,2),64,64))
@@ -289,6 +284,6 @@ while run:
         if event.type == pygame.QUIT:
             run = False
 
-    reDrawGameWindow(score)
+    reDrawGameWindow()
 
 pygame.quit()
