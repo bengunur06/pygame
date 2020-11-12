@@ -102,7 +102,7 @@ class enemyy():
         self.x += (self.vel ** 2) * 0.5 * self.neg
         self.jumpCount-=0.5
         win.blit(self.pic,(self.x ,self.y))
-        self.hitbox = (self.x , self.y ,36,36 )
+        self.hitbox = (self.x , self.y ,self.width+1,self.height+1 )
         pygame.draw.rect(win,(255,0,0),self.hitbox,2)
         #pygame.draw.circle(win,(255,255,255),self.gun,5) 
         # pygame.display.update()
@@ -139,7 +139,7 @@ pygame.image.load('img/planet19.png'),pygame.image.load('img/planet20.png'),]
 
 spaceShip = [pygame.image.load('img/ship1.png'),pygame.image.load('ship_F5.png'),]
 backGround = pygame.image.load('img/spacebackground.png')
-ship1 = player(225,500,71,80)
+ship1 = player(225,620,71,80)
 fire = []
 alien = []
 score = 0 
@@ -160,16 +160,10 @@ pygame.time.set_timer(SHOOTSHIP, 4000)
 run = True 
 while run:
     clock.tick(50)
-    timer= 3000
     for a in planets:
         if a.hitbox[1]+a.hitbox[3] > ship1.y :
             print ("you lost ")
             run = False
-    
-
-
-   
-    
 
  #   for af in alienfire:
   #      for al in alien:
@@ -230,14 +224,14 @@ while run:
     if pygame.event.get(ADDENEMY) :
         if not alien : 
             for i in range(0,2 ):
-                alien.append(enemyy(random.randrange(34,screenWidth-34),random.randrange(-300,1),32,32))
+                alien.append(enemyy(random.randrange(34,screenWidth-34),random.randrange(-300,1),88,88))
                 print("here making alien")
                 #alienfire[i].shootIT()  
         
     if pygame.event.get(SHOOTSHIP):
         for al in alien:
-            alienfire.append(shoot(al.x+15,al.y))
-            alienfire.append(shoot(al.x+15,al.y+10))
+            alienfire.append(shoot(al.x+44,al.y+88))
+            alienfire.append(shoot(al.x+44,al.y+89))
 
     
     for i in fire :
