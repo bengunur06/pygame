@@ -151,27 +151,26 @@ for i in astreoidPic  :
 
 rowas = []
 loopsht = 0
+ADDENEMY = pygame.USEREVENT + 1
+SHOOTSHIP = pygame.USEREVENT + 2
 
+pygame.time.set_timer(ADDENEMY, 10)
+pygame.time.set_timer(SHOOTSHIP, 4000)
 
 run = True 
 while run:
     clock.tick(50)
-    
+    timer= 3000
     for a in planets:
         if a.hitbox[1]+a.hitbox[3] > ship1.y :
             print ("you lost ")
             run = False
     
 
-    if not alien : 
-        for i in range(0,4):
-            alien.append(enemyy(random.randrange(64,screenWidth-64),random.randrange(-200,1),32,32))
-            alienfire.append(shoot(alien[i].x+15,alien[i].y))
-            alienfire.append(shoot(alien[i].x+15,alien[i].y+10))
-            print("here making alien")
-            
-            #alienfire[i].shootIT()  
+
+   
     
+
  #   for af in alienfire:
   #      for al in alien:
    #         alienfire.append(shoot(alien[al].x+15,alien[al].y))
@@ -181,20 +180,22 @@ while run:
         i.shootIT()
         i.y += i.vel 
 
-        
+    for i in alienfire:     
         if i.y - 5 < ship1.hitbox[1]+ ship1.hitbox[3] and i.y + 5 > ship1.hitbox[1]:
             if i.x + 5 > ship1.hitbox[0] and i.x - 5 < ship1.hitbox[0] + ship1.hitbox[2]:
                 ship1.hit()
                 run = False
                 
-        
-        for a in alien : 
-            if  a.hitbox[1] > ship1.hitbox[1] :
-                ship1.hit()
-                run = False
-        
         if i.y > screenHeight :
-            alienfire.pop(alienfire.index(i)) 
+            alienfire.pop(alienfire.index(i))
+            
+
+    for a in alien : 
+        if  a.hitbox[1] > ship1.hitbox[1] :
+            ship1.hit()
+            run = False
+        
+        
             
 
     if loopsht > 0: 
@@ -216,15 +217,28 @@ while run:
         ship1.right = False
         ship1.left = False
         ship1.walkCount = 0
-        
-    
-        if keys[pygame.K_SPACE] :
-            ship1.yesshoot = True
-            fire.append(shoot(ship1.x+30,ship1.y))
-            loopsht +=2 
+
+    if keys[pygame.K_SPACE] :
+        ship1.yesshoot = True
+        fire.append(shoot(ship1.x+30,ship1.y))
+        loopsht +=2 
 
     for i in fire :
         i.shootIT()
+        i.y-=i.vel * 0.7
+    
+    if pygame.event.get(ADDENEMY) :
+        if not alien : 
+            for i in range(0,2 ):
+                alien.append(enemyy(random.randrange(34,screenWidth-34),random.randrange(-300,1),32,32))
+                print("here making alien")
+                #alienfire[i].shootIT()  
+        
+    if pygame.event.get(SHOOTSHIP):
+        for al in alien:
+            alienfire.append(shoot(al.x+15,al.y))
+            alienfire.append(shoot(al.x+15,al.y+10))
+
     
     for i in fire :
         for a in planets:
@@ -253,10 +267,11 @@ while run:
         else :
             fire.pop(fire.index(i))
 
-        if not planets:
-            for i in astreoidPic  :
-                planets.append(asteroid(astreoidPic[random.randrange(1,20)],
-                random.randrange(64,screenWidth-64),random.randrange(-700,2),64,64))
+
+    if not planets:
+        for i in astreoidPic  :
+            planets.append(asteroid(astreoidPic[random.randrange(1,20)],
+            random.randrange(64,screenWidth-64),random.randrange(-700,2),64,64))
 
                 
         #fire = []
