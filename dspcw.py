@@ -1,7 +1,10 @@
 __author__ = "bengunur6"
+import os 
+import sys
 import pygame 
 import random
-import pygame.constants
+from pygame.constants import K_SPACE , K_LEFT , K_RIGHT 
+import numpy as np 
 
 
 
@@ -178,7 +181,39 @@ class SpaceWarrior():
         self.ADDENEMY = pygame.USEREVENT + 1
         self.SHOOTSHIP = pygame.USEREVENT + 2
 
+        
+    def getScreenRGB(self):
+        imgdata = pygame.surfarray.array3d(self.win)
+        return imgdata
 
+
+    def getScreenGrayscale(self):
+        screenarray = np.zeros(self.win)
+        return screenarray
+
+    def reset_game(self):
+        self.run==True
+        self.game_running = True
+        self.reDrawGameWindow()
+
+    def game_over(self):
+        return self.run
+
+    def getActionSet(self):
+        return self.actions
+
+
+    def act(self,action):
+        self.key = action
+         
+        return self.moment_rw
+
+
+    def game_start (self):
+        self.run=True
+        self.reDrawGameWindow()
+        return True
+    
     def reDrawGameWindow (self):
 
         pygame.time.set_timer(self.ADDENEMY, 10)
@@ -210,7 +245,7 @@ class SpaceWarrior():
             
             
         print("clasa girdi")
-
+        act = self.act()
         if self.loopsht > 0: 
             self.loopsht +=1
         if self.loopsht >6: 
@@ -258,8 +293,9 @@ class SpaceWarrior():
                 if i.y - 5 < a.hitbox[1]+ a.hitbox[3] and i.y + 5 > a.hitbox[1]:
                     if i.x + 5 > a.hitbox[0] and i.x - 5 < a.hitbox[0] + a.hitbox[2]:
                         a.hit()
+                        self.moment_rw=2
                         self.planets.pop(self.planets.index(a))
-                        self.score+=1
+                        self.score+=2
                         self.fire.pop(self.fire.index(i))
                         pygame.display.update()
                         break
@@ -270,6 +306,7 @@ class SpaceWarrior():
                     if i.x > al.hitbox[0] and i.x  < al.hitbox[0] + al.hitbox[2]:
                         al.hit()
                         self.alien.pop(self.alien.index(al))
+                        self.moment_rw=5
                         self.score+=5
                         self.fire.pop(self.fire.index(i))
                         pygame.display.update()

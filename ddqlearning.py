@@ -5,12 +5,22 @@ from dspcw import *
 
 os.environ["SDL_VIDEODRIVER"] = "dummy" 
 
-game = SpaceWarrior(84,84)
-while game.run == True :
-    
-    game.reDrawGameWindow()
+game = SpaceWarrior(600,700)
+gpus = tf.config.experimental.list_physical_devices('GPU')
 
+if gpus:
+    try:
+        # Restrict TensorFlow to only use the fourth GPU
+        #tf.config.experimental.set_visible_devices(gpus[3], 'GPU')
 
+        # Currently, memory growth needs to be the same across GPUs
+        for gpu in gpus:
+            tf.config.experimental.set_memory_growth(gpu, True)
+        logical_gpus = tf.config.experimental.list_logical_devices('GPU')
+        print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPUs")
+    except RuntimeError as e:
+        # Memory growth must be set before GPUs have been initialized
+        print(e)
 
 
 # Define Input Size
@@ -186,22 +196,85 @@ def frames_to_state(input_frames):
 
 from IPython.display import Image,display
 
+update_every_iteration = 1000
+print_every_episode = 500
+save_video_every_episode = 5000
+NUM_EPISODE = 20000
+NUM_EXPLORE = 20
+BATCH_SIZE = 32
+
+iter_num = 0
+for episode in range(0,NUM_EPISODE + 1 ):
+    #reset env 
+    game.reset_game()
+
+    #record frame 
+    if episode % save_video_every_episode == 0 :
+        frames = [game.getScreenRGB()]
+
+    input_frames = [preprocess_screen(game.getScreenGrayscale())]
+    
+    #for every 500 episodes shut down and explore it
+
+    if episode % print_every_episode == 0 : 
+        online_agent.shutdown_explore()
+    
+    c_reward = 0 
+
+    t = 0 
+    while not game.game_over():
+
+        state = frames_to_state(input_frames)
+        action = online_agent.select_action(state)
+        reward = game.act(game.getActionSet()[action])
+
+        if episode % save_video_every_episode == 0:
+            frames.append(game.getScreenRGB())
+
+        #record input frame 
+        input_frames.append(preprocess_screen(game.getScreenGrayscale()))
+        
+        c_reward +=reward
+        state_prime = frames_to_state(input_frames)
+
+        if episode % print_every_episode != 0:
+            buffer.add((state,action,reward,state_prime.game.game_over()))
+
+        state = state_prime
+        t += 1
+
+        ## updating agent 
+        if episode > NUM_EPISODE and episode %print_every_episode !=0 :
+            iter_num += 1
+            train_states , train_actions , train_rewards ,train_states_prime , terminal = buffer.sample(BATCH_SIZE)
+            train_states= np.asarray(train_states).reshape(-1,IMG_WIDTH,IMG_HEIGHT,NUM_STACK)
+
+            #convert python objects to tensor to prevent graph re-tracing 
+            train_states  = tf.convert_to_tensor(train_states,tf.float32)
+            train_actions = tf.convert_to_tensor(train_actions,tf.int32)
+            train_rewards = tf.convert_to_tensor(train_rewards,tf.float32)
+            terminal = tf.convert_to_tensor(terminal,tf.bool)
+            
+            train_step(train_states,train_actions,train_rewards,train_states_prime,terminal)
+
+            #sync target model and online model weight every 1000 iteration 
+            if iter_num % update_every_iteration ==0 and episode > NUM_EPISODE and episode % print_every_episode !=0 :
+                target_agent.model.set_weights(online_agent.model.get_weights())
+
+            #update exploring rate 
+            online_agent.update_parameters(episode)
+            target_agent.update_parameters(episode)
+
+            if episode % print_every_episode == 0 and episode > NUM_EXPLORE :
+                print (
+                    "[{}] time live :{} cumulated reward : {} ,exploring rate : {},average loss : {} ".format(episode,t,c_reward,online_agent.exploring_rate,average_loss.result())
+
+                )
+            
+            if episode % save_video_every_episode == 0 :
+                clip = make_anim(frames,fps=60,true_image=True)
+                clip.write_videofile("movie_f/DQN_demo-{}.webm",format=(episode),fps=60) 
 
 
 
 
-gpus = tf.config.experimental.list_physical_devices('GPU')
-
-if gpus:
-    try:
-        # Restrict TensorFlow to only use the fourth GPU
-        #tf.config.experimental.set_visible_devices(gpus[3], 'GPU')
-
-        # Currently, memory growth needs to be the same across GPUs
-        for gpu in gpus:
-            tf.config.experimental.set_memory_growth(gpu, True)
-        logical_gpus = tf.config.experimental.list_logical_devices('GPU')
-        print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPUs")
-    except RuntimeError as e:
-        # Memory growth must be set before GPUs have been initialized
-        print(e)
